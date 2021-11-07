@@ -1,8 +1,29 @@
-const router = require('express').Router();
+const router = require("express").Router();
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../secrets");
+const Users = require("../users/users-model");
+const {
+	checkUsernameExists,
+	checkFields,
+	checkUniqueUser,
+} = require("./auth-middleware");
 
-router.post('/register', (req, res) => {
-  res.end('implement register, please!');
-  /*
+router.post("/register", checkFields, checkUniqueUser, (req, res) => {
+	let user = req.body;
+	const rounds = process.env.BCRYPT_ROUNDS || 8;
+	const hash = bcrypt.hashSync(user.password, rounds);
+	user.password = hash;
+
+	Users.add(user)
+		.then((newUser) => {
+			res.status(201).json(newUser);
+		})
+		.catch((err) => {
+			res.status(400).json({ message: err });
+		});
+	// res.end("implement register, please!");
+	/*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
     DO NOT EXCEED 2^8 ROUNDS OF HASHING!
@@ -29,9 +50,20 @@ router.post('/register', (req, res) => {
   */
 });
 
-router.post('/login', (req, res) => {
-  res.end('implement login, please!');
-  /*
+router.post("/login", checkFields, checkUsernameExists, (req, res) => {
+	let { username, password } = req.body;
+
+	Users.findBy(username).then((user) => {
+		if (user && bcrypt.compareSync(password, user.password)) {
+			const token = makeToken(user);
+			res.status(200).json({ message: `welcome, ${user.username}`, token });
+		} else {
+			res.status(401).json({ message: "invalid credentials" });
+		}
+	});
+
+	//   res.end('implement login, please!');
+	/*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
 
@@ -56,4 +88,14 @@ router.post('/login', (req, res) => {
   */
 });
 
+function makeToken(user) {
+	const payload = {
+		subject: user.id,
+		username: user.username,
+	};
+	const options = {
+		expiresIn: "10000s",
+	};
+	return jwt.sign(payload, JWT_SECRET, options);
+}
 module.exports = router;
