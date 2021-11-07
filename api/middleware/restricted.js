@@ -2,7 +2,7 @@ const { JWT_SECRET } = require("../secrets");
 const jwt = require("jsonwebtoken");
 
 module.exports = (req, res, next) => {
-	const token = req.headers.authorization;
+	const token = req.headers.token;
 
 	if (!token) {
 		res.status(401).json({ message: "token required" });

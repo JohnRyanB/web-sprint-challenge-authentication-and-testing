@@ -90,11 +90,11 @@ router.post("/login", checkFields, checkUsernameExists, (req, res) => {
 
 function makeToken(user) {
 	const payload = {
-		subject: user.user_id,
+		subject: user.id,
 		username: user.username,
 	};
 	const options = {
-		expiresIn: "24h",
+		expiresIn: "10000s",
 	};
 	return jwt.sign(payload, JWT_SECRET, options);
 }
