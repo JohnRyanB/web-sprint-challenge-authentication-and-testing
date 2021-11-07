@@ -1,7 +1,7 @@
 const Users = require("../users/users-model");
 const checkUsernameExists = (req, res, next) => {
 	let { username } = req.body;
-	Users.findBy({ username }).then(([user]) => {
+	Users.findBy(username).then((user) => {
 		if (!user) {
 			res.status(401).json({ message: "invalid credentials" });
 		} else {
@@ -21,7 +21,7 @@ const checkFields = (req, res, next) => {
 
 const checkUniqueUser = (req, res, next) => {
 	let { username } = req.body;
-	Users.findBy({ username }).then(([user]) => {
+	Users.findBy(username).then((user) => {
 		if (!user) {
 			next();
 		} else {

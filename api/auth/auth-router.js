@@ -2,7 +2,7 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../secrets");
-const Users = require("../");
+const Users = require("../users/users-model");
 const {
 	checkUsernameExists,
 	checkFields,
@@ -53,7 +53,7 @@ router.post("/register", checkFields, checkUniqueUser, (req, res) => {
 router.post("/login", checkFields, checkUsernameExists, (req, res) => {
 	let { username, password } = req.body;
 
-	Users.findBy({ username }).then(([user]) => {
+	Users.findBy(username).then((user) => {
 		if (user && bcrypt.compareSync(password, user.password)) {
 			const token = makeToken(user);
 			res.status(200).json({ message: `welcome, ${user.username}`, token });
