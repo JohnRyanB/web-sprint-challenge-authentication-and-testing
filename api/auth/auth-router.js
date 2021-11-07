@@ -3,9 +3,13 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../secrets");
 const Users = require("../");
-const { checkUsernameExists, checkFields } = require("./auth-middleware");
+const {
+	checkUsernameExists,
+	checkFields,
+	checkUniqueUser,
+} = require("./auth-middleware");
 
-router.post("/register", checkFields, (req, res) => {
+router.post("/register", checkFields, checkUniqueUser, (req, res) => {
 	let user = req.body;
 	const rounds = process.env.BCRYPT_ROUNDS || 8;
 	const hash = bcrypt.hashSync(user.password, rounds);

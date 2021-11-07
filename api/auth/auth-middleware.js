@@ -3,7 +3,7 @@ const checkUsernameExists = (req, res, next) => {
 	let { username } = req.body;
 	Users.findBy({ username }).then(([user]) => {
 		if (!user) {
-			res.status(401).json({ message: "username taken" });
+			res.status(401).json({ message: "invalid credentials" });
 		} else {
 			next();
 		}
@@ -19,4 +19,15 @@ const checkFields = (req, res, next) => {
 	}
 };
 
-module.exports = { checkFields, checkUsernameExists };
+const checkUniqueUser = (req, res, next) => {
+	let { username } = req.body;
+	Users.findBy({ username }).then(([user]) => {
+		if (!user) {
+			next();
+		} else {
+			res.status(401).json({ message: "username taken" });
+		}
+	});
+};
+
+module.exports = { checkFields, checkUsernameExists, checkUniqueUser };
